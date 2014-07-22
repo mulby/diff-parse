@@ -18,8 +18,8 @@ Library
   Other-Modules:        Text.Diff.Parse.Internal
                       , Text.Diff.Parse.Types
   Build-Depends:        base >= 4 && < 5
-                      , text == 1.1.*
-                      , attoparsec == 0.12.*
+                      , text
+                      , attoparsec == 0.11.*
   Other-Extensions:     OverloadedStrings
 
 Test-Suite spec
@@ -30,8 +30,8 @@ Test-Suite spec
   Ghc-Options:          -Wall
   Main-Is:              Spec.hs
   Build-Depends:        base >= 4 && < 5
-                      , text == 1.1.*
-                      , attoparsec == 0.12.*
+                      , text
+                      , attoparsec == 0.11.*
                       , hspec == 1.10.*
   Other-Extensions:     OverloadedStrings
 
