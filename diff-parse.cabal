@@ -15,8 +15,8 @@ Library
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
   Exposed-Modules:      Text.Diff.Parse
-  Other-Modules:        Text.Diff.Parse.Internal
                       , Text.Diff.Parse.Types
+  Other-Modules:        Text.Diff.Parse.Internal
   Build-Depends:        base >= 4 && < 5
                       , text
                       , attoparsec == 0.11.*
