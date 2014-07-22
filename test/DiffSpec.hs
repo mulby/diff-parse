@@ -51,6 +51,19 @@ spec = do
                                                             , (Line Context "z")
                                                             ]
             (parseOnly hunk $ pack testText) `shouldBe` Right expectedHunk
+
+        it "should parse a hunk with header context" $ do
+            let testText = unlines [ "@@ -1,2 +4,3 @@ foo bar baz",
+                                     "-x",
+                                     "+y",
+                                     "+w",
+                                     " z\n"]
+            let expectedHunk = Hunk (Range 1 2) (Range 4 3) [ (Line Removed "x")
+                                                            , (Line Added "y")
+                                                            , (Line Added "w")
+                                                            , (Line Context "z")
+                                                            ]
+            (parseOnly hunk $ pack testText) `shouldBe` Right expectedHunk
     
     describe "fileDeltaHeader" $ do
         it "should parse file delta header" $ do
