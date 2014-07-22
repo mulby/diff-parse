@@ -64,7 +64,7 @@ path = option "" (letter >> string "/") *> takeLine
 
 hunk :: Parser Hunk
 hunk = Hunk <$> ("@@ -" *> range)
-            <*> (" +" *> range <* " @@" <* endOfLine)
+            <*> (" +" *> range <* " @@" <* takeLine)
             <*> (many annotatedLine)
 
 range :: Parser Range
