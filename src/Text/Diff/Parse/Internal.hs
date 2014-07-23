@@ -13,6 +13,7 @@ module Text.Diff.Parse.Internal
 import Text.Diff.Parse.Types
 
 import Control.Applicative ((<|>), (*>), (<*), (<$>), (<*>), many)
+import Data.Char (isSpace)
 import Data.Text (Text)
 
 import Data.Attoparsec.Text
@@ -28,6 +29,7 @@ import Data.Attoparsec.Text
     , decimal
     , endOfInput
     , letter
+    , space
     )
 
 
@@ -41,16 +43,17 @@ fileDelta :: Parser FileDelta
 fileDelta = do
     (status, source, dest) <- fileDeltaHeader
     hunks  <- many hunk
-    _      <- option "" (string "\\ No newline at end of file" <* endOfLine)
     return $ FileDelta status source dest hunks
 
 fileDeltaHeader :: Parser (FileStatus, Text, Text)
 fileDeltaHeader = do
-    _      <- string "diff --git " >> takeLine
+    _      <- string "diff --git "
+    source <- path <* space
+    dest   <- path <* endOfLine
     status <- fileStatus
     _      <- option "" (string "index" >> takeLine)
-    source <- string "--- " *> path
-    dest   <- string "+++ " *> path
+    _      <- option "" (string "--- " >> takeLine)
+    _      <- option "" (string "+++ " >> takeLine)
     return $ (status, source, dest)
 
 takeLine :: Parser Text
@@ -60,7 +63,7 @@ fileStatus :: Parser FileStatus
 fileStatus = option Modified $ ((string "new" *> return Created) <|> (string "deleted" *> return Deleted)) <* string " file mode" <* takeLine
 
 path :: Parser Text
-path = option "" (letter >> string "/") *> takeLine
+path = option "" (letter >> string "/") *> takeTill (\c -> (isSpace c) || (isEndOfLine c))
 
 hunk :: Parser Hunk
 hunk = Hunk <$> ("@@ -" *> range)
@@ -71,7 +74,7 @@ range :: Parser Range
 range = Range <$> decimal <*> (option 1 ("," *> decimal))
 
 annotatedLine :: Parser Line
-annotatedLine = Line <$> annotation <*> takeLine
+annotatedLine = Line <$> annotation <*> (takeLine <* (option "" (string "\\ No newline at end of file" <* endOfLine)))
 
 annotation :: Parser Annotation
 annotation = (char '+' >> return Added)

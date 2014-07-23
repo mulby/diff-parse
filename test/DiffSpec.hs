@@ -79,7 +79,7 @@ spec = do
                                     "index 0000000..c698226",
                                      "--- /dev/null",
                                      "+++ b/foo.txt\n" ]
-            (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Created, "/dev/null", "foo.txt")
+            (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Created, "foo.txt", "foo.txt")
 
         it "should parse removed file delta header" $ do
             let testText = unlines [ "diff --git a/foo.txt b/foo.txt",
@@ -87,7 +87,7 @@ spec = do
                                     "index 80ef287..0000000",
                                      "--- a/foo.txt",
                                      "+++ /dev/null\n" ]
-            (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Deleted, "foo.txt", "/dev/null")
+            (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Deleted, "foo.txt", "foo.txt")
 
     describe "fileDelta" $ do
         it "should parse a file delta with multiple hunks" $ do
@@ -179,6 +179,9 @@ spec = do
                                     "+line 3.5",
                                     " line 4",
                                     "\\ No newline at end of file",
+                                    "diff --git a/empty.txt b/empty.txt",
+                                    "new file mode 100644",
+                                    "index 0000000..c698226",
                                     "diff --git a/renamed.txt b/renamed.txt",
                                     "new file mode 100644",
                                     "index 0000000..c698226",
@@ -186,12 +189,12 @@ spec = do
                                     "+++ b/renamed.txt",
                                     "@@ -0,0 +1,3 @@",
                                     "+baz 1",
+                                    "\\ No newline at end of file",
                                     "+baz 10",
-                                    "+baz 12",
-                                    "\\ No newline at end of file"]
+                                    "+baz 12"]
 
-            let barDiff = FileDelta Deleted "bar.txt" "/dev/null" [Hunk (Range 1 1) (Range 0 0) [Line Removed "bar 1"]]
-                bazDiff = FileDelta Deleted "baz.txt" "/dev/null" [Hunk (Range 1 2) (Range 0 0) [ Line Removed "baz 1"
+            let barDiff = FileDelta Deleted "bar.txt" "bar.txt" [Hunk (Range 1 1) (Range 0 0) [Line Removed "bar 1"]]
+                bazDiff = FileDelta Deleted "baz.txt" "baz.txt" [Hunk (Range 1 2) (Range 0 0) [ Line Removed "baz 1"
                                                                                                 , Line Removed "baz 2"
                                                                                                 ]]
                 fooDiff = FileDelta Modified "foo.txt" "foo.txt" [Hunk (Range 1 4) (Range 1 5) [ Line Added "line 0"
@@ -201,8 +204,9 @@ spec = do
                                                                                                , Line Added "line 3.5"
                                                                                                , Line Context "line 4"
                                                                                                ]]
-                renamedDiff = FileDelta Created "/dev/null" "renamed.txt" [Hunk (Range 0 0) (Range 1 3) [ Line Added "baz 1"
+                renamedDiff = FileDelta Created "renamed.txt" "renamed.txt" [Hunk (Range 0 0) (Range 1 3) [ Line Added "baz 1"
                                                                                                         , Line Added "baz 10"
                                                                                                         , Line Added "baz 12"
                                                                                                         ]]
-            (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, renamedDiff]
+                emptyDiff = FileDelta Created "empty.txt" "empty.txt" []
+            (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, emptyDiff, renamedDiff]
