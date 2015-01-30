@@ -210,3 +210,13 @@ spec = do
                                                                                                         ]])
                 emptyDiff = FileDelta Created "empty.txt" "empty.txt" $ Hunks []
             (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, emptyDiff, renamedDiff]
+
+        it "should parse binary diffs" $ do
+            let testText = unlines ["diff --git a/binary.png b/binary.png",
+                                    "new file mode 100644",
+                                    "index 0000000..363a6c1",
+                                    "Binary files /dev/null and b/binary.png differ"]
+
+                binaryDiff = FileDelta Created "binary.png" "binary.png" Binary
+
+            (parseDiff $ pack testText) `shouldBe` Right [binaryDiff]
