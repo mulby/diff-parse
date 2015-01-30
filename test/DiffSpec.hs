@@ -110,7 +110,7 @@ spec = do
                                                             , (Line Added "w")
                                                             , (Line Context "z")
                                                             ]
-            (parseOnly fileDelta $ pack testText) `shouldBe` Right (FileDelta Modified "foo.txt" "bar.txt" [expectedHunk, expectedHunk])
+            (parseOnly fileDelta $ pack testText) `shouldBe` Right (FileDelta Modified "foo.txt" "bar.txt" $ Hunks [expectedHunk, expectedHunk])
 
         it "should parse a diff with multiple file deltas" $ do
             let testText = unlines [ "diff --git a/foo.txt b/bar.txt",
@@ -146,7 +146,7 @@ spec = do
                                                             , (Line Added "w")
                                                             , (Line Context "z")
                                                             ]
-            let expectedFileDelta = FileDelta Modified "foo.txt" "bar.txt" [expectedHunk, expectedHunk]
+            let expectedFileDelta = FileDelta Modified "foo.txt" "bar.txt" $ Hunks [expectedHunk, expectedHunk]
             (parseOnly diff $ pack testText) `shouldBe` Right ([expectedFileDelta, expectedFileDelta])
 
     describe "parseDiff" $ do
@@ -193,20 +193,20 @@ spec = do
                                     "+baz 10",
                                     "+baz 12"]
 
-            let barDiff = FileDelta Deleted "bar.txt" "bar.txt" [Hunk (Range 1 1) (Range 0 0) [Line Removed "bar 1"]]
-                bazDiff = FileDelta Deleted "baz.txt" "baz.txt" [Hunk (Range 1 2) (Range 0 0) [ Line Removed "baz 1"
+            let barDiff = FileDelta Deleted "bar.txt" "bar.txt" (Hunks [Hunk (Range 1 1) (Range 0 0) [Line Removed "bar 1"]])
+                bazDiff = FileDelta Deleted "baz.txt" "baz.txt" (Hunks [Hunk (Range 1 2) (Range 0 0) [ Line Removed "baz 1"
                                                                                                 , Line Removed "baz 2"
-                                                                                                ]]
-                fooDiff = FileDelta Modified "foo.txt" "foo.txt" [Hunk (Range 1 4) (Range 1 5) [ Line Added "line 0"
+                                                                                                ]])
+                fooDiff = FileDelta Modified "foo.txt" "foo.txt" (Hunks [Hunk (Range 1 4) (Range 1 5) [ Line Added "line 0"
                                                                                                , Line Context "line 1"
                                                                                                , Line Removed "line 2"
                                                                                                , Line Context "line 3"
                                                                                                , Line Added "line 3.5"
                                                                                                , Line Context "line 4"
-                                                                                               ]]
-                renamedDiff = FileDelta Created "renamed.txt" "renamed.txt" [Hunk (Range 0 0) (Range 1 3) [ Line Added "baz 1"
+                                                                                               ]])
+                renamedDiff = FileDelta Created "renamed.txt" "renamed.txt" (Hunks [Hunk (Range 0 0) (Range 1 3) [ Line Added "baz 1"
                                                                                                         , Line Added "baz 10"
                                                                                                         , Line Added "baz 12"
-                                                                                                        ]]
-                emptyDiff = FileDelta Created "empty.txt" "empty.txt" []
+                                                                                                        ]])
+                emptyDiff = FileDelta Created "empty.txt" "empty.txt" $ Hunks []
             (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, emptyDiff, renamedDiff]

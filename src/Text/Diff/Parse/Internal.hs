@@ -42,7 +42,7 @@ diff = many1 fileDelta <* endOfInput
 fileDelta :: Parser FileDelta
 fileDelta = do
     (status, source, dest) <- fileDeltaHeader
-    hunks  <- many hunk
+    hunks  <- Hunks <$> many hunk
     return $ FileDelta status source dest hunks
 
 fileDeltaHeader :: Parser (FileStatus, Text, Text)
