@@ -13,6 +13,7 @@ module Text.Diff.Parse.Internal
 import Text.Diff.Parse.Types
 
 import Control.Applicative ((<|>), (*>), (<*), (<$>), (<*>), many)
+import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Text (Text)
 
@@ -30,6 +31,7 @@ import Data.Attoparsec.Text
     , endOfInput
     , letter
     , space
+    , try
     )
 
 
@@ -42,8 +44,8 @@ diff = many1 fileDelta <* endOfInput
 fileDelta :: Parser FileDelta
 fileDelta = do
     (status, source, dest) <- fileDeltaHeader
-    hunks  <- many hunk
-    return $ FileDelta status source dest hunks
+    content <- try binary <|> hunks
+    return $ FileDelta status source dest content
 
 fileDeltaHeader :: Parser (FileStatus, Text, Text)
 fileDeltaHeader = do
@@ -65,10 +67,22 @@ fileStatus = option Modified $ ((string "new" *> return Created) <|> (string "de
 path :: Parser Text
 path = option "" (letter >> string "/") *> takeTill (\c -> (isSpace c) || (isEndOfLine c))
 
+hunks :: Parser Content
+hunks = Hunks <$> many hunk
+
 hunk :: Parser Hunk
 hunk = Hunk <$> ("@@ -" *> range)
             <*> (" +" *> range <* " @@" <* takeLine)
             <*> (many annotatedLine)
+
+binary :: Parser Content
+binary = do
+    void $ string "Binary files "
+        <* path <* string " and "
+        <* path <* string " differ"
+        <* endOfLine
+
+    return $ Binary
 
 range :: Parser Range
 range = Range <$> decimal <*> (option 1 ("," *> decimal))

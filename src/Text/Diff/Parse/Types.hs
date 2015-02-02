@@ -20,13 +20,15 @@ data Hunk = Hunk {
   , hunkLines       :: [Line]
 } deriving (Show, Eq)
 
+data Content = Binary | Hunks [Hunk] deriving (Show, Eq)
+
 data FileStatus = Created | Deleted | Modified deriving (Show, Eq)
 
 data FileDelta = FileDelta {
     fileDeltaStatus     :: FileStatus
   , fileDeltaSourceFile :: Text
   , fileDeltaDestFile   :: Text
-  , fileDeltaHunks      :: [Hunk]
+  , fileDeltaContent    :: Content
 } deriving (Show, Eq)
 
 type FileDeltas = [FileDelta]
