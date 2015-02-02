@@ -1,5 +1,5 @@
 Name:                   diff-parse
-Version:                0.1.2
+Version:                0.2.0
 Author:                 Gabe Mulley <gabe@edx.org>
 Maintainer:             Gabe Mulley <gabe@edx.org>
 Category:               Parsing
@@ -9,6 +9,7 @@ Synopsis:               A parser for diff file formats
 Description:            Parse output produced by git diff.
 Cabal-Version:          >= 1.18
 Build-Type:             Simple
+Extra-Source-Files:     changelog
 
 Library
   Default-Language:     Haskell2010

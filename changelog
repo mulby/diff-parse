@@ -1,0 +1,6 @@
+-*-change-log-*-
+
+0.2.0 February 2015
+	* Added support for binary diffs. Note this is a breaking change. Calls to fileDeltaHunks need to be replaced with calls to fileDeltaContent.
+
+0.1.2 Initial release
