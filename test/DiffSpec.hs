@@ -220,3 +220,18 @@ spec = do
                 binaryDiff = FileDelta Created "binary.png" "binary.png" Binary
 
             (parseDiff $ pack testText) `shouldBe` Right [binaryDiff]
+
+        it "should parse a file delta with a mode change" $ do
+            let testText = unlines [ "diff --git a/foo.txt b/bar.txt",
+                                     "old mode 100644",
+                                     "new mode 100755",
+                                     "index fcd15ac..f4ca464",
+                                     "--- a/foo.txt",
+                                     "+++ b/bar.txt",
+                                     "@@ -1 +1 @@",
+                                     "-abc",
+                                     "+abcd"]
+
+                hunklessDiff = FileDelta Modified "foo.txt" "bar.txt" $ Hunks [Hunk (Range 1 1) (Range 1 1) [Line Removed "abc", Line Added "abcd"]]
+
+            (parseDiff $ pack testText) `shouldBe` Right [hunklessDiff]
