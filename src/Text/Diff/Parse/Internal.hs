@@ -62,7 +62,10 @@ takeLine :: Parser Text
 takeLine = takeTill isEndOfLine <* endOfLine
 
 fileStatus :: Parser FileStatus
-fileStatus = option Modified $ ((string "new" *> return Created) <|> (string "deleted" *> return Deleted)) <* string " file mode" <* takeLine
+fileStatus = do
+    _ <- option "" (string "old mode " >> takeLine)
+    _ <- option "" (string "new mode " >> takeLine)
+    option Modified $ ((string "new" *> return Created) <|> (string "deleted" *> return Deleted)) <* string " file mode" <* takeLine
 
 path :: Parser Text
 path = option "" (letter >> string "/") *> takeTill (\c -> (isSpace c) || (isEndOfLine c))
