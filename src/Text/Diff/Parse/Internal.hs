@@ -23,6 +23,7 @@ import Data.Attoparsec.Text
     , many1
     , takeTill
     , char
+    , choice
     , string
     , option
     , isEndOfLine
@@ -65,7 +66,14 @@ fileStatus :: Parser FileStatus
 fileStatus = do
     _ <- option "" (string "old mode " >> takeLine)
     _ <- option "" (string "new mode " >> takeLine)
-    option Modified $ ((string "new" *> return Created) <|> (string "deleted" *> return Deleted)) <* string " file mode" <* takeLine
+    _ <- option "" (string "similarity index " >> takeLine)
+    _ <- option "" (string "rename from " >> takeLine)
+    choice
+        [ (string "new file mode" >> takeLine *> return Created)
+        , (string "deleted file mode" >> takeLine *> return Deleted)
+        , (string "rename to " >> takeLine *> return Renamed)
+        , return Modified
+        ]
 
 path :: Parser Text
 path = option "" (letter >> string "/") *> takeTill (\c -> (isSpace c) || (isEndOfLine c))
