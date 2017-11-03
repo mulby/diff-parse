@@ -22,7 +22,7 @@ data Hunk = Hunk {
 
 data Content = Binary | Hunks [Hunk] deriving (Show, Eq)
 
-data FileStatus = Created | Deleted | Modified deriving (Show, Eq)
+data FileStatus = Created | Deleted | Modified | Renamed deriving (Show, Eq)
 
 data FileDelta = FileDelta {
     fileDeltaStatus     :: FileStatus

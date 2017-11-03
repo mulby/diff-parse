@@ -89,6 +89,13 @@ spec = do
                                      "+++ /dev/null\n" ]
             (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Deleted, "foo.txt", "foo.txt")
 
+        it "should parse renamed file delta header" $ do
+            let testText = unlines [ "diff --git a/foo.txt b/bar.txt",
+                                     "similarity index 100%",
+                                     "rename from foo.txt",
+                                     "rename to bar.txt" ]
+            (parseOnly fileDeltaHeader $ pack testText) `shouldBe` Right (Renamed, "foo.txt", "bar.txt")
+
     describe "fileDelta" $ do
         it "should parse a file delta with multiple hunks" $ do
             let testText = unlines [ "diff --git a/foo.txt b/bar.txt",
@@ -191,7 +198,12 @@ spec = do
                                     "+baz 1",
                                     "\\ No newline at end of file",
                                     "+baz 10",
-                                    "+baz 12"]
+                                    "+baz 12",
+                                    "diff --git a/from.txt b/to.txt",
+                                    "similarity index 100%",
+                                    "rename from from.txt",
+                                    "rename to to.hs"
+                                    ]
 
             let barDiff = FileDelta Deleted "bar.txt" "bar.txt" (Hunks [Hunk (Range 1 1) (Range 0 0) [Line Removed "bar 1"]])
                 bazDiff = FileDelta Deleted "baz.txt" "baz.txt" (Hunks [Hunk (Range 1 2) (Range 0 0) [ Line Removed "baz 1"
@@ -209,7 +221,8 @@ spec = do
                                                                                                         , Line Added "baz 12"
                                                                                                         ]])
                 emptyDiff = FileDelta Created "empty.txt" "empty.txt" $ Hunks []
-            (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, emptyDiff, renamedDiff]
+                renamedDiff2 = FileDelta Renamed "from.txt" "to.txt" $ Hunks []
+            (parseDiff $ pack testText) `shouldBe` Right [barDiff, bazDiff, fooDiff, emptyDiff, renamedDiff, renamedDiff2]
 
         it "should parse binary diffs" $ do
             let testText = unlines ["diff --git a/binary.png b/binary.png",
