@@ -34,7 +34,7 @@ Test-Suite spec
                       , diff-parse
                       , attoparsec
                       , text
-                      , hspec == 1.10.*
+                      , hspec == 2.4.*
   Other-Extensions:     OverloadedStrings
 
 Source-Repository head
